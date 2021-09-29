@@ -29,6 +29,28 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
             }
         }
         console.log(`Up: ${minUp} to ${maxUp}; Down: ${minDown} to ${maxDown}`)
+
+        var code = "";
+        for (var i = 2; i < millis.length - 1; i+=2) {
+            var up = millis[i];
+            var down = millis[i+1]
+
+            if ( up < 20 || down < 20) {
+                code += ".";
+                continue;
+            }
+            if ( down > (up * 0.8) && down < (up * 1.4)) {
+                code += "0";
+                continue;
+            }
+            if ( down > (up * 1.8) && down < (up * 4)) {
+                code += "1";
+                continue;
+            }
+            code += "?";
+        }
+        console.log(`Binary: ${code}`)
+
     }
 }
   
