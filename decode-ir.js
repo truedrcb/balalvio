@@ -1,39 +1,53 @@
 import { irCodes } from "./ir-codes.js";
 
 console.log("Decoding...");
+var codes = {};
 for (const [brand, buttons] of Object.entries(irCodes)) {
+    codes[brand] = {};
     for (const [button, millis] of Object.entries(buttons)) {
-        console.log(`${brand}: ${button} - length: ${millis.length}`);
-        if (millis.length < 3) {
+        var ms = [];
+        if (typeof millis === 'string') {
+            ms.push(4500);
+            ms.push(4500);
+            for (let c of millis) {
+                if (c === '0') {
+                    ms.push(480);
+                    ms.push(520);
+                    continue;
+                }
+                if (c === '1') {
+                    ms.push(480);
+                    ms.push(1520);
+                    continue;
+                }
+                if (c === '|') {
+                    ms.push(480);
+                    ms.push(4510);
+                    continue;
+                }
+            }
+            ms.push(460);
+        } else {
+            ms = millis;
+        }
+        codes[brand][button] = ms;
+
+        console.log(`${brand}: ${button} - length: ${ms.length}`);
+        if (ms.length < 3) {
             console.error("Length < 3");
             continue;
         } 
-        if ((millis.length % 2) != 1) {
+        if ((ms.length % 2) != 1) {
             console.error("Length is not odd");
             continue;
         }
-        var maxUp = 0, maxDown = 0, minUp = millis[0], minDown = millis[1];
-        for (var i = 2; i < millis.length; i++) {
-            if (millis[i] > maxUp) {
-                maxUp = millis[i];
-            }
-            if (millis[i] < minUp) {
-                minUp = millis[i];
-            }
-            i++;
-            if (millis[i] > maxDown) {
-                maxDown = millis[i];
-            }
-            if (millis[i] < minDown) {
-                minDown = millis[i];
-            }
-        }
-        console.log(`Up: ${minUp} to ${maxUp}; Down: ${minDown} to ${maxDown}`)
+        
+        analyzeMaxMin(ms);
 
         var code = "";
-        for (var i = 2; i < millis.length - 1; i+=2) {
-            var up = millis[i];
-            var down = millis[i+1]
+        for (var i = 2; i < ms.length - 1; i+=2) {
+            var up = ms[i];
+            var down = ms[i+1]
 
             if ( up < 20 || down < 20) {
                 code += ".";
@@ -47,6 +61,10 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
                 code += "1";
                 continue;
             }
+            if ( down > (up * 4) && down < (up * 13)) {
+                code += "|";
+                continue;
+            }
             console.error(`Error[${i}]: ${up}-${down}`)
             code += "?";
         }
@@ -57,7 +75,7 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
 
 
 console.log("Code for Arduino:");
-for (const [brand, buttons] of Object.entries(irCodes)) {
+for (const [brand, buttons] of Object.entries(codes)) {
     for (const [button, millis] of Object.entries(buttons)) {
         console.log(`const int raw_${brand}_${button}_len = ${millis.length + 1};`);
         console.log(`uint16_t raw_${brand}_${button}_data[raw_${brand}_${button}_len] = {${millis},10000};`);
@@ -73,3 +91,24 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
 }
 
 console.log("End.");
+
+function analyzeMaxMin(millis) {
+    var maxUp = 0, maxDown = 0, minUp = millis[0], minDown = millis[1];
+    for (var i = 2; i < millis.length; i++) {
+        if (millis[i] > maxUp) {
+            maxUp = millis[i];
+        }
+        if (millis[i] < minUp) {
+            minUp = millis[i];
+        }
+        i++;
+        if (millis[i] > maxDown) {
+            maxDown = millis[i];
+        }
+        if (millis[i] < minDown) {
+            minDown = millis[i];
+        }
+    }
+    console.log(`Up: ${minUp} to ${maxUp}; Down: ${minDown} to ${maxDown}`);
+}
+
