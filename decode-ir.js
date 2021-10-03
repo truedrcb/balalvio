@@ -77,14 +77,11 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
 console.log("Code for Arduino:");
 for (const [brand, buttons] of Object.entries(codes)) {
     for (const [button, millis] of Object.entries(buttons)) {
-        console.log(`#define raw_${brand}_${button}_len  ${millis.length + 1}`);
-        console.log(`uint16_t raw_${brand}_${button}_data[raw_${brand}_${button}_len] = {${millis},10000};`);
+        let arrayLength = millis.length + 1;
 
         console.log(`void send_${brand}_${button}() {`);
-        console.log(`   digitalWrite(ledPin, HIGH);`);
-        console.log(`   mySender.send(raw_${brand}_${button}_data, raw_${brand}_${button}_len, 36);`);
-        console.log(`   Serial.println("Sent: ${brand} - ${button}");`);
-        console.log(`   digitalWrite(ledPin, LOW);`);
+        console.log(`\tuint16_t raw_data[${arrayLength}] = {${millis},1000};`);
+        console.log(`\tsend_raw(raw_data, ${arrayLength}, "${brand} - ${button}");`);
         console.log(`}`);
         console.log(``);
     }
