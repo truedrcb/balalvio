@@ -80,8 +80,8 @@ for (const [brand, buttons] of Object.entries(codes)) {
         let arrayLength = millis.length + 1;
 
         console.log(`void send_${brand}_${button}() {`);
-        console.log(`\tuint16_t raw_data[${arrayLength}] = {${millis},10000};`);
-        console.log(`\tsend_raw(raw_data, ${arrayLength}, "${brand} - ${button}");`);
+        console.log(`  uint16_t raw_data[${arrayLength}] = {${millis},10000};`);
+        console.log(`  send_raw(raw_data, ${arrayLength}, "${brand} - ${button}");`);
         console.log(`}`);
         console.log(``);
     }

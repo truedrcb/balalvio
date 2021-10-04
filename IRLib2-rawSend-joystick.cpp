@@ -119,7 +119,9 @@ void loop() {
       send_LG_onOff();
       send_Onkyo_cblSat();
       send_LG_onOff();
+      delay(200);
       send_LG_num1();
+      delay(100);
       send_LG_num1();
   } else if(lastPressedButton == 4) {
       send_Horizon_onOff();
