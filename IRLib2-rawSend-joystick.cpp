@@ -143,8 +143,7 @@ void loop() {
       send_LG_onOff();
       send_Onkyo_onOff();
   } else if(lastPressedButton == 5) {
-      send_Onkyo_cblSat();
-      //send_Onkyo_pc();
+      send_Onkyo_pc();
   } else if(lastPressedButton == 6) {
       send_Onkyo_cblSat();
   } else if(lastPressedButton == 9) {
