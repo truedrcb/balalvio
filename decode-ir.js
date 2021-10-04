@@ -30,7 +30,9 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
         } else {
             ms = millis;
         }
-        codes[brand][button] = ms;
+
+        var info = {millis:ms};
+        codes[brand][button] = info;
 
         console.log(`${brand}: ${button} - length: ${ms.length}`);
         if (ms.length < 3) {
@@ -45,6 +47,25 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
         analyzeMaxMin(ms);
 
         var code = "";
+        var binLength = 0;
+        var binCode = 0;
+
+        //class IRsendBase {
+        //    public:
+        //      IRsendBase();
+        //      void sendGeneric(uint32_t data,  uint8_t numBits,
+        //            uint16_t headMark, uint16_t headSpace, uint16_t markOne,
+        //            uint16_t markZero, uint16_t spaceOne, uint16_t spaceZero,
+        //            uint8_t kHz, bool stopBits, uint32_t maxExtent=0);
+
+        info.headMark = ms[0];
+        info.headSpace = ms[1];
+        info.stopBits = true;
+        info.markOne = 0;
+        info.markZero = 0;
+        info.spaceOne = 0;
+        info.kHz = 38;
+        info.spaceZero = 0;
         for (var i = 2; i < ms.length - 1; i+=2) {
             var up = ms[i];
             var down = ms[i+1]
@@ -55,10 +76,23 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
             }
             if ( down > (up * 0.8) && down < (up * 1.4)) {
                 code += "0";
+                binCode <<= 1;
+                binLength++;
+
+                info.markZero = up;
+                info.spaceZero = down;
+
                 continue;
             }
             if ( down > (up * 1.8) && down < (up * 4)) {
                 code += "1";
+                binCode <<= 1;
+                binCode |= 1;
+                binLength++;
+
+                info.markOne = up;
+                info.spaceOne = down;
+
                 continue;
             }
             if ( down > (up * 4) && down < (up * 13)) {
@@ -69,19 +103,27 @@ for (const [brand, buttons] of Object.entries(irCodes)) {
             code += "?";
         }
         console.log(`Binary: ${code}`)
-
+        console.log(`Hex: 0x${Number(binCode).toString(16)} (length: ${binLength})`)
+        info.binCode = binCode;
+        info.binLength = binLength;
     }
 }
 
 
 console.log("Code for Arduino:");
 for (const [brand, buttons] of Object.entries(codes)) {
-    for (const [button, millis] of Object.entries(buttons)) {
+    for (const [button, info] of Object.entries(buttons)) {
+        let millis = info.millis;
         let arrayLength = millis.length + 1;
 
+        console.log(`// 0x${Number(info.binCode).toString(16)} ${info.binLength}`);
         console.log(`void send_${brand}_${button}() {`);
-        console.log(`  uint16_t raw_data[${arrayLength}] = {${millis},10000};`);
-        console.log(`  send_raw(raw_data, ${arrayLength}, "${brand} - ${button}");`);
+        if (info.binLength <= 32) {
+            console.log(`  send_generic(0x${Number(info.binCode).toString(16)}, ${info.binLength}, ${info.headMark}, ${info.headSpace}, ${info.markOne}, ${info.markZero}, ${info.spaceOne}, ${info.spaceZero}, ${info.kHz}, ${info.stopBits}, "${brand} - ${button}");`);
+        } else {
+            console.log(`  uint16_t raw_data[${arrayLength}] = {${millis},10000};`);
+            console.log(`  send_raw(raw_data, ${arrayLength}, "${brand} - ${button}");`);
+        }
         console.log(`}`);
         console.log(``);
     }
