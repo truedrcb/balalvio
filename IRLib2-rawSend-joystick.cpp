@@ -31,7 +31,7 @@ void setup() {
   digitalWrite(ledPin, LOW);
   
   Serial.begin(9600);
-  delay(2000); while (!Serial); //delay for Leonardo
+  //delay(2000); while (!Serial); //delay for Leonardo
   Serial.println(F("GO!"));
 }
 
@@ -130,6 +130,7 @@ void loop() {
   }
 
   if(lastPressedButton == 2) {
+      send_LG_onOff();
       send_Horizon_onOff();
       send_LG_onOff();
       send_Onkyo_cblSat();
@@ -142,6 +143,7 @@ void loop() {
       send_Horizon_onOff();
       send_LG_onOff();
       send_Onkyo_onOff();
+      send_LG_onOff();
   } else if(lastPressedButton == 5) {
       send_Onkyo_pc();
   } else if(lastPressedButton == 6) {
