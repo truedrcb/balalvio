@@ -63,9 +63,9 @@ void send_Onkyo_pc() {
   send_generic(0x4bb639c6, 32, 9020, 4475, 565, 565, 1690, 565, 38, true, "Onkyo - pc");
 }
 
-// 0x976d609 29
+// 0x4bb6b04f 32
 void send_Onkyo_game() {
-  send_generic(0x976d609, 29, 9020, 4495, 565, 565, 1690, 565, 38, true, "Onkyo - game");
+  send_generic(0x4bb6b04f, 32, 9015, 4495, 565, 560, 1690, 570, 38, true, "Onkyo - game");
 }
 
 // 0x4bb640bf 32
