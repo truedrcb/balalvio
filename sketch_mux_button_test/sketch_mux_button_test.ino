@@ -1,7 +1,7 @@
 
-int PIN_MUX_SIG = 4;
-int PIN_MUX_EN = 9;
-int PINS_MUX_SELECT[4] = {5, 6, 7, 8};
+const int PIN_MUX_SIG = 4;
+const int PIN_MUX_EN = 9;
+const int PINS_MUX_SELECT[4] = {5, 6, 7, 8};
 
 void setup() {
   pinMode(PIN_MUX_SIG, INPUT);
